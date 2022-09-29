@@ -1,0 +1,6 @@
+cronCallInterval: 60 # secs
+timeoutKeeperNeeded: 3 # days
+chainId: 5 # goerli
+
+databasePath: "ext/matches.db"
+logPath: "ext/log_keeper.txt"
