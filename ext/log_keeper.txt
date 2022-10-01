@@ -4,3 +4,7 @@
 2022-09-29 13:50:22,974 ERROR Error upkeep 390122 : execution reverted
 2022-09-29 13:52:38,964 ERROR Error upkeep 390122 : execution reverted
 2022-09-29 13:52:45,233 ERROR Error upkeep 390122 : execution reverted
+2022-09-30 22:07:08,987 ERROR Error upkeep 390111 : HTTPSConnectionPool(host='eth-goerli.g.alchemy.com', port=443): Max retries exceeded with url: /v2/g01HDA6GRiK3R-zjRtJcgYLKiTTsKWoL (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f83d762f790>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution'))
+2022-09-30 22:07:15,957 ERROR Error upkeep 390122 : execution reverted
+2022-09-30 22:07:58,584 ERROR Error upkeep 390122 : execution reverted
+2022-09-30 22:08:10,283 ERROR Error upkeep 390122 : execution reverted

@@ -77,14 +77,6 @@ def perfUpkeepPy(bet, w3,chainId, my_address, private_key) :
             "from": my_address,
             "nonce": nonce,
         }) 
-    # tx = bet.functions.toBet(2).buildTransaction(
-    #     {
-    #     "value": 100000000000000,
-    #     "chainId": chainId,
-    #     # "gasPrice": w3.eth.gas_price,
-    #     "from": my_address,
-    #     "nonce": nonce,
-    #     }) 
     signed_txn = w3.eth.account.sign_transaction(tx, private_key=private_key)
     tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -109,7 +101,7 @@ def main() :
                 logging.info(f"{match_id} performUpkeep")
                 print(tx_receipt['status'])
         except Exception as e :
-            print("Error saveAddrDb :",e)
+            print("Error :",e)
             logging.error(f"Error upkeep {match_id} : {e}")
 
     # update BD

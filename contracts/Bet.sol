@@ -186,7 +186,7 @@ contract Bet is
     /**
      * @dev able a player to cancel all his bet
      */
-    function cancelBet() public payable matchStarted nonReentrant {
+    function cancelBet() public matchStarted nonReentrant {
         uint256 homeBetAmount = s_playerWhoBetHomeToAmount[msg.sender];
         uint256 awayBetAmount = s_playerWhoBetAwayToAmount[msg.sender];
         uint256 drawBetAmount = s_playerWhoBetDrawToAmount[msg.sender];
