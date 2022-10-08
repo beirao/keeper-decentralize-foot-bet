@@ -91,7 +91,6 @@ contract Bet is
     event playerBetting(matchState ms, address indexed playerAdrr);
     event playerCancelBet(address indexed playerAdrr);
     event RequestWinner(bytes32 indexed requestId, uint256 _matchState);
-    event RequestBetWinner(bytes32 indexed requestId);
     event BetEnded(contractState cs, matchState ms);
 
     // Modifiers
@@ -303,6 +302,7 @@ contract Bet is
         } else {
             s_betState = contractState.PLAYERS_FUNDED_NOT_ENOUGH_PLAYERS;
         }
+        emit BetEnded(getSmartContractState(), getWinner());
     }
 
     /** @dev Player quand withdraw their reward by caling this function */
@@ -356,7 +356,6 @@ contract Bet is
             );
         }
         bytes32 requestId = requestWinnerData();
-        emit RequestBetWinner(requestId);
     }
 
     /**

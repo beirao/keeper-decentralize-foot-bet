@@ -4,6 +4,7 @@ from solcx import compile_standard, install_solc
 from dotenv import load_dotenv
 import sqlite3 as db
 from datetime import datetime
+import requests
 
 # Global var
 load_dotenv() 
@@ -82,36 +83,56 @@ def perfUpkeepPy(bet, w3,chainId, my_address, private_key) :
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     return tx_receipt
 
+def registerMatchScore(bet, cursor) :
+    matchId = bet.functions.getMatchId().call()
+
+    url = f"https://api.football-data.org//v4/matches?ids={matchId}"
+    res = requests.request("GET", url, headers={ "X-Auth-Token":os.getenv('FOOT_API_KEY')}, data={})
+    res = json.loads(res.text)
+    home_score = res["matches"][0]["score"]["fullTime"]["home"]
+    away_score = res["matches"][0]["score"]["fullTime"]["away"]
+
+    cursor.execute(f"UPDATE matches SET home_score = ? WHERE match_id = ?", (away_score, matchId))
+    cursor.execute(f"UPDATE matches SET away_score = ? WHERE match_id = ?", (home_score, matchId))
+
+
 def main() :
     w3, my_address, private_key, abiBet, bytecodeBet, chainId = init()
 
     connection = db.connect(config["databasePath"])
     cursor = connection.cursor()
-    reqBD = cursor.execute(f'SELECT match_id, address, date FROM matches WHERE isDeployed = ?',(1,))
+    reqBD = cursor.execute(f'SELECT match_id, address, date, isDeployed FROM matches WHERE isDeployed = ?',(1,))
     allDeployedBet = reqBD.fetchall()
     print(allDeployedBet)
 
-    for match_id, addr, date in allDeployedBet : 
+    # Perform upkeep
+    for match_id, addr, date, isDeployed in allDeployedBet :        
         try :
             bet, isUpkeepNeeded = ckeckUpkeepPy(addr, w3, abiBet)
-            print("ckeckUpkeep : ", isUpkeepNeeded)
 
             if isUpkeepNeeded :
                 tx_receipt = perfUpkeepPy(bet, w3,chainId, my_address, private_key)
                 logging.info(f"{match_id} performUpkeep")
                 print(tx_receipt['status'])
+
+            matchState = bet.functions.getWinner().call()
+            print("ckeckUpkeep : ", isUpkeepNeeded)
+            print("matchState : ", matchState)
+
+            # Update BD
+            now = int(datetime.timestamp(datetime.now()))
+            if (now > date + config["timeoutKeeperNeeded"] * 24 * 60 * 60 or matchState  != 0 ) and isDeployed < 2 :
+                registerMatchScore(bet, cursor)
+                cursor.execute("UPDATE matches SET isDeployed = 2 WHERE match_id = ?", (match_id,))
+                logging.info(f"{match_id} timeout")
+
+            connection.commit()
+
         except Exception as e :
             print("Error :",e)
             logging.error(f"Error upkeep {match_id} : {e}")
 
-    # update BD
-    now = int(datetime.timestamp(datetime.now()))
-    for matchId, addr, date in allDeployedBet : 
-        if now > date + config["timeoutKeeperNeeded"] * 24 * 60 * 60 :
-            cursor.execute("UPDATE matches SET isDeployed = 2 WHERE match_id = ?", (matchId,))
-            logging.info(f"{match_id} timeout")
 
-        connection.commit()
             
 
 if __name__ == "__main__":
