@@ -1,4 +1,4 @@
-# Smart contracts keeper Dockerize
+# Smart contracts keeper Dockerize for [BoarBet](https://github.com/beirao/main-decentralize-foot-bet)
 
 This repo Dockerize a Chainlink keeper system for [Decentralize-foot-bet](https://github.com/beirao/main-decentralize-foot-bet). Use this when you don't want to spend LINK :)
 

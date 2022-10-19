@@ -1,5 +1,5 @@
 cronCallInterval: 60 # secs
-timeoutKeeperNeeded: 3 # days
+timeoutKeeperNeeded: 1 # days
 chainId: 5 # goerli
 
 databasePath: "ext/matches.db"

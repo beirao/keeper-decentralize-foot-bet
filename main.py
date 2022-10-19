@@ -92,9 +92,10 @@ def registerMatchScore(bet, cursor) :
     home_score = res["matches"][0]["score"]["fullTime"]["home"]
     away_score = res["matches"][0]["score"]["fullTime"]["away"]
 
-    cursor.execute(f"UPDATE matches SET home_score = ? WHERE match_id = ?", (away_score, matchId))
-    cursor.execute(f"UPDATE matches SET away_score = ? WHERE match_id = ?", (home_score, matchId))
+    cursor.execute(f"UPDATE matches SET home_score = ? WHERE match_id = ?", (home_score, matchId))
+    cursor.execute(f"UPDATE matches SET away_score = ? WHERE match_id = ?", (away_score, matchId))
 
+    logging.info(f"{matchId} registerMatchScore")
 
 def main() :
     w3, my_address, private_key, abiBet, bytecodeBet, chainId = init()
@@ -103,6 +104,7 @@ def main() :
     cursor = connection.cursor()
     reqBD = cursor.execute(f'SELECT match_id, address, date, isDeployed FROM matches WHERE isDeployed = ?',(1,))
     allDeployedBet = reqBD.fetchall()
+    tempo = 0
     print(allDeployedBet)
 
     # Perform upkeep
@@ -121,10 +123,16 @@ def main() :
 
             # Update BD
             now = int(datetime.timestamp(datetime.now()))
-            if (now > date + config["timeoutKeeperNeeded"] * 24 * 60 * 60 or matchState  != 0 ) and isDeployed < 2 :
+            if ((now > date + 3 * 24 * 60 * 60 or matchState  != 0 ) and isDeployed < 2) :
                 registerMatchScore(bet, cursor)
                 cursor.execute("UPDATE matches SET isDeployed = 2 WHERE match_id = ?", (match_id,))
                 logging.info(f"{match_id} timeout")
+            
+            if (now > date + config["timeoutKeeperNeeded"] * 24 * 60 * 60 and matchState != 0 and tempo % 50 == 0)  :
+                registerMatchScore(bet, cursor)
+                tempo += 1 # to avoid overloading the API
+                if tempo == 50 :
+                    tempo = 0
 
             connection.commit()
 
